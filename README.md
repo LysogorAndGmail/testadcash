@@ -1,4 +1,7 @@
 # adcash test
+
+Laravel and Vue.js
+
 1. git clone https://github.com/LysogorAndGmail/testadcash.git
 2. cp .env.example .env
 3. Put the database details in the .env
