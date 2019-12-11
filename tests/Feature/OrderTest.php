@@ -24,109 +24,80 @@ class OrderTest extends TestCase
     {
         parent::setup();
 
-        $this->user          = Auth::user();
-        $this->org           = factory(Organization::class)->create();
-        $this->companyStatus = factory(CompanyStatus::class)->create([
-            'org_id' => $this->org->id
-        ]);
-        $this->role          = factory(Role::class)->create([
-            'org_id' => $this->org->id
-        ]);
-        $this->country       = factory(Country::class)->create();
-        $this->company       = factory(Company::class)->create([
-            'org_id'     => $this->org->id,
-            'country_id' => $this->country->id,
-            'status_id'  => $this->companyStatus->id,
-            'created_by' => $this->user->id
-        ]);
+        $this->product = factory(Product::class)->create();
+        $this->user = factory(User::class)->create();
+        $this->order = factory(Order::class)->create();
 
-        session(['selected_org_id' => $this->org->id]);
     }
 
-    public function testIndexCompany()
+    public function testIndexOrder()
     {
-        $response = $this->get("/companies");
+        $filter_type = 1; //all orders
+        $response = $this->get("/orders/" . $filter_type);
         $response->assertOk()
-                 ->assertSee('org_id')
-                 ->assertSee('country_id')
-                 ->assertSee('status_id')
-                 ->assertSee('created_by')
-                 ->assertSee('name')
-                 ->assertSee('reg')
-                 ->assertSee('vat')
-                 ->assertSee('legal_address')
-                 ->assertSee('address')
-                 ->assertSee('source');
+            ->assertSee('user_id')
+            ->assertSee('product_id')
+            ->assertSee('product_price')
+            ->assertSee('product_count')
+            ->assertSee('order_sum');
     }
 
-    public function testShowCompany()
+    public function testSearchOrder()
     {
-        $response = $this->get("/company/{$this->company->id}/show");
+        $filter_type = 1; //all orders
+
+        $search = $this->product->name;
+
+        $response = $this->get("/orders/" . $filter_type . "/" . $search);
         $response->assertOk()
-                 ->assertSee('org_id')
-                 ->assertSee('country_id')
-                 ->assertSee('status_id')
-                 ->assertSee('created_by')
-                 ->assertSee('name')
-                 ->assertSee('reg')
-                 ->assertSee('vat')
-                 ->assertSee('legal_address')
-                 ->assertSee('address')
-                 ->assertSee('source');
+            ->assertSee('user_id')
+            ->assertSee('product_id')
+            ->assertSee('product_price')
+            ->assertSee('product_count')
+            ->assertSee('order_sum');
     }
 
-    public function testStoreCompany()
+    public function testShowOrder()
+    {
+        $response = $this->get("/order/{$this->order->id}/show");
+        $response->assertOk()
+            ->assertSee('user_id')
+            ->assertSee('product_id')
+            ->assertSee('product_price')
+            ->assertSee('product_count')
+            ->assertSee('order_sum');
+    }
+
+    public function testStoreOrder()
     {
 
-        $response = $this->post("/company/store", [
-            'name'          => 'test',
-            'reg'           => 'test',
-            'vat'           => 'test',
-            'legal_address' => 'test',
-            'address'       => 'test',
-            'source'        => 'test',
-            'org_id'        => session('selected_org_id'),
-            'country_id'    => $this->country->id,
-            'status_id'     => $this->companyStatus->id,
-            'created_by'    => $this->user->id,
-            'logo'          => UploadedFile::fake()->image('logo.jpg')
+        $response = $this->post("/order/store", [
+            'user_id' => $this->user->id,
+            'product_id' => $this->product->id,
+            'product_price' => $this->product->price,
+            'product_count' => 1,
+            'order_sum' => $this->product->price
         ]);
 
         $response->assertOk();
     }
 
-    public function testUpdateCompany()
+    public function testUpdateOrder()
     {
-        $response = $this->put("/company/{$this->company->id}/update", [
-            'name'          => 'test',
-            'reg'           => 'test',
-            'vat'           => 'test',
-            'legal_address' => 'test',
-            'address'       => 'test',
-            'source'        => 'test',
-            'org_id'        => $this->org->id,
-            'country_id'    => $this->country->id,
-            'status_id'     => $this->companyStatus->id
+        $response = $this->put("/order/{$this->order->id}/update", [
+            'user_id' => $this->user->id,
+            'product_id' => $this->product->id,
+            'product_price' => $this->product->price,
+            'product_count' => 1,
+            'order_sum' => $this->product->price
         ]);
         $response->assertOk();
     }
 
-    public function testDestroyCompany()
+    public function testDestroyOrder()
     {
-        $response = $this->delete("/company/{$this->company->id}/destroy");
+        $response = $this->delete("/order/{$this->order->id}/destroy");
         $response->assertOk();
     }
 
-    public function testSearchCompany()
-    {
-        $response = $this->get("/company/{$this->company->name}/search");
-        $response->assertOk()
-                 ->assertSee('id')
-                 ->assertSee('status')
-                 ->assertSee('name')
-                 ->assertSee('reg')
-                 ->assertSee('phone')
-                 ->assertSee('email')
-                 ->assertSee('address');
-    }
 }
