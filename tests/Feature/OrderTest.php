@@ -6,30 +6,23 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Http\UploadedFile;
 
-use Illuminate\Support\Facades\Auth;
+use App\Product;
+use App\User;
+use App\Order;
 
-use App\Company;
-use App\Country;
-use App\Organization;
-use App\CompanyStatus;
-use App\Role;
-
-class CompanyTest extends TestCase
+class OrderTest extends TestCase
 {
     use RefreshDatabase, WithoutMiddleware;
 
-    protected $company;
+    protected $product;
     protected $user;
-    protected $org;
-    protected $country;
-    protected $companyStatus;
+    protected $order;
+
 
     protected function setUp(): void
     {
         parent::setup();
-        $this->authenticate();
 
         $this->user          = Auth::user();
         $this->org           = factory(Organization::class)->create();
